@@ -1,6 +1,7 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import './auto-effects.css';
 
 const pages = [
   { id: 'cover', label: 'Invitation' },
@@ -13,6 +14,7 @@ const pages = [
 
 const RELEASE_MS = 420;
 const DRAG_THRESHOLD = 0.28;
+const AUTO_TURN_MS = 5000;
 
 function App() {
   const [page, setPage] = useState(0);
@@ -23,36 +25,47 @@ function App() {
   const [turnProgress, setTurnProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const gesture = useRef(null);
+  const turnProgressRef = useRef(0);
+  const autoTimer = useRef(null);
 
-  const next = () => {
-    if (turningIndex !== null || page >= pages.length - 1) return;
-    setTurningIndex(page);
-    setTurnDirection('next');
-    setTurnProgress(0);
-    setIsReleasing(true);
+  const setProgress = (value) => {
+    const nextValue = Math.min(Math.max(value, 0), 0.98);
+    turnProgressRef.current = nextValue;
+    setTurnProgress(nextValue);
+  };
+
+  const finishTurn = (direction, committed) => {
     window.setTimeout(() => {
-      setPage((value) => value + 1);
+      if (committed) {
+        setPage((value) => direction === 'next' ? value + 1 : value - 1);
+      }
       setTurningIndex(null);
       setTurnDirection(null);
-      setTurnProgress(0);
+      setProgress(0);
       setIsReleasing(false);
     }, RELEASE_MS);
   };
 
+  const next = () => {
+    if (turningIndex !== null || page >= pages.length - 1) return;
+    setHasInteracted(true);
+    setTurningIndex(page);
+    setTurnDirection('next');
+    setProgress(1);
+    setIsReleasing(true);
+    finishTurn('next', true);
+  };
+
   const previous = () => {
     if (turningIndex !== null || page <= 0) return;
+    setHasInteracted(true);
     setTurningIndex(page - 1);
     setTurnDirection('previous');
-    setTurnProgress(1);
+    setProgress(1);
     setIsReleasing(true);
-    window.setTimeout(() => {
-      setPage((value) => value - 1);
-      setTurningIndex(null);
-      setTurnDirection(null);
-      setTurnProgress(0);
-      setIsReleasing(false);
-    }, RELEASE_MS);
+    finishTurn('previous', true);
   };
 
   const openInvitation = () => {
@@ -60,11 +73,19 @@ function App() {
     setMusicOn(true);
   };
 
+  useEffect(() => {
+    if (!opened || turningIndex !== null || page >= pages.length - 1) return undefined;
+    window.clearTimeout(autoTimer.current);
+    autoTimer.current = window.setTimeout(() => next(), AUTO_TURN_MS);
+    return () => window.clearTimeout(autoTimer.current);
+  }, [opened, page, turningIndex, hasInteracted]);
+
   const progress = useMemo(() => `${((page + 1) / pages.length) * 100}%`, [page]);
 
   const startGesture = (event) => {
     if (turningIndex !== null || !opened) return;
-    gesture.current = { pointerId: event.pointerId, startX: event.clientX, lastX: event.clientX, direction: null };
+    setHasInteracted(true);
+    gesture.current = { pointerId: event.pointerId, startX: event.clientX, direction: null };
     event.currentTarget.setPointerCapture?.(event.pointerId);
   };
 
@@ -73,7 +94,6 @@ function App() {
     if (!active || active.pointerId !== event.pointerId || turningIndex !== null) return;
 
     const deltaX = event.clientX - active.startX;
-    active.lastX = event.clientX;
     if (!active.direction && Math.abs(deltaX) > 8) {
       if (deltaX < 0 && page < pages.length - 1) active.direction = 'next';
       if (deltaX > 0 && page > 0) active.direction = 'previous';
@@ -82,7 +102,8 @@ function App() {
         setTurningIndex(active.direction === 'next' ? page : page - 1);
         setTurnDirection(active.direction);
         setIsDragging(true);
-        setTurnProgress(0);
+        setIsReleasing(false);
+        setProgress(0);
       }
     }
 
@@ -90,7 +111,7 @@ function App() {
 
     const stageWidth = event.currentTarget.getBoundingClientRect().width;
     const raw = Math.abs(deltaX) / Math.max(stageWidth, 1);
-    setTurnProgress(Math.min(Math.max(raw, 0), 0.98));
+    setProgress(raw);
   };
 
   const endGesture = (event, cancelled = false) => {
@@ -98,6 +119,7 @@ function App() {
     if (!active || active.pointerId !== event.pointerId) return;
 
     const direction = active.direction;
+    const currentProgress = turnProgressRef.current;
     gesture.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
 
@@ -105,24 +127,15 @@ function App() {
       setIsDragging(false);
       setTurningIndex(null);
       setTurnDirection(null);
-      setTurnProgress(0);
+      setProgress(0);
       return;
     }
 
-    const committed = turnProgress >= DRAG_THRESHOLD;
+    const committed = currentProgress >= DRAG_THRESHOLD;
     setIsDragging(false);
     setIsReleasing(true);
-    setTurnProgress(committed ? 1 : 0);
-
-    window.setTimeout(() => {
-      if (committed) {
-        setPage((value) => direction === 'next' ? value + 1 : value - 1);
-      }
-      setTurningIndex(null);
-      setTurnDirection(null);
-      setTurnProgress(0);
-      setIsReleasing(false);
-    }, RELEASE_MS);
+    setProgress(committed ? 1 : 0);
+    finishTurn(direction, committed);
   };
 
   if (!opened) {
@@ -200,7 +213,7 @@ function App() {
         <div className="progress-wrap"><div className="progress-track"><span style={{ width: progress }} /></div><div className="page-label">{pages[page].label}</div></div>
         <button className="nav-button" onClick={next} disabled={page === pages.length - 1 || turningIndex !== null} aria-label="Next page">→</button>
       </nav>
-      <div className="keyboard-hint">Drag the page edge, swipe, or use the arrows</div>
+      <div className="page-hint" aria-hidden="true">← TURN THE PAGE →</div>
     </main>
   );
 }
