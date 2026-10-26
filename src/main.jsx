@@ -18,7 +18,7 @@ const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 const PETAL_COUNT = 10;
 const GOLD_DUST_COUNT = 7;
-const ROYAL_OPEN_MS = 1050;
+const ROYAL_OPEN_MS = 4000;
 
 function RosePetal({ index }) {
   return (
