@@ -265,6 +265,7 @@ function App() {
             <div className="royal-panel royal-panel-right"><span /></div>
             <div className="royal-panel royal-panel-bottom"><span /></div>
             <div className="royal-panel royal-panel-left"><span /></div>
+            <div className="royal-ribbon" aria-hidden="true"><span className="ribbon-horizontal" /><span className="ribbon-vertical" /><span className="ribbon-knot" /></div>
           </div>
           <section className="royal-crest">
             <p className="royal-kicker">The Wedding Of</p>
@@ -273,6 +274,23 @@ function App() {
             <button className="royal-cta" onClick={openInvitation} disabled={openingExiting}>Open Invitation</button>
             <p className="royal-hint">Unseal the celebration</p>
           </section>
+          <div className="royal-scene" aria-hidden="true">
+            <div className="scene-sky">
+              <span className="scene-star star-1" /><span className="scene-star star-2" /><span className="scene-star star-3" /><span className="scene-star star-4" /><span className="scene-star star-5" /><span className="scene-star star-6" />
+              <div className="scene-chandelier"><i /><b /><em /><span /><small /></div>
+              <div className="scene-lantern scene-lantern-left"><i /></div>
+              <div className="scene-lantern scene-lantern-right"><i /></div>
+              <div className="scene-arch"><span /><span /><span /></div>
+              <div className="scene-staircase"><i /><i /><i /><i /><i /><i /><i /></div>
+              <div className="scene-floral scene-floral-left"><i /><i /><i /><i /><i /></div>
+              <div className="scene-floral scene-floral-right"><i /><i /><i /><i /><i /></div>
+              <div className="scene-couple">
+                <div className="scene-bride"><i className="head" /><i className="veil" /><i className="body" /><i className="dress" /></div>
+                <div className="scene-groom"><i className="head" /><i className="body" /><i className="leg left" /><i className="leg right" /></div>
+              </div>
+              <div className="scene-monogram"><span>T</span><em>&amp;</em><span>M</span></div>
+            </div>
+          </div>
         </main>
       ) : null}
     </>
