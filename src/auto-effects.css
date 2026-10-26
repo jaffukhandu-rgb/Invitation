@@ -3,3 +3,14 @@
 /* Fine gold corner ornamentation without image assets. */
 .content-page:before{background:radial-gradient(circle at 0 0,rgba(157,116,48,.5) 0 2px,transparent 2.5px),radial-gradient(circle at 100% 0,rgba(157,116,48,.5) 0 2px,transparent 2.5px),radial-gradient(circle at 0 100%,rgba(157,116,48,.5) 0 2px,transparent 2.5px),radial-gradient(circle at 100% 100%,rgba(157,116,48,.5) 0 2px,transparent 2.5px),linear-gradient(135deg,transparent 47%,rgba(157,116,48,.12) 48%,transparent 52%);background-size:18px 18px,18px 18px,18px 18px,18px 18px,100% 100%;background-position:0 0,100% 0,0 100%,100% 100%,0 0;background-repeat:no-repeat}
 @media(prefers-reduced-motion:reduce){.page-sheet.is-turning-next.is-releasing,.page-sheet.is-turning-previous.is-releasing{transition-duration:.01ms!important}}
+
+/* Refined physical depth: broad, soft occlusion instead of a hard door-like edge. */
+.page-sheet.is-turning-next.is-dragging,.page-sheet.is-turning-previous.is-dragging{filter:drop-shadow(calc(var(--turn-progress)*18px - 4px) 10px 30px rgba(0,0,0,calc(.16 + var(--turn-progress)*.34)))!important}
+.page-sheet.is-turning-next.is-releasing,.page-sheet.is-turning-previous.is-releasing{transition:transform 440ms cubic-bezier(.22,.8,.22,1),filter 440ms cubic-bezier(.22,.8,.22,1)!important}
+.page-sheet.is-dragging .page-face:before,.page-sheet.is-releasing .page-face:before{background:linear-gradient(90deg,transparent 18%,rgba(255,248,224,.04) 34%,rgba(255,250,228,.34) 49%,rgba(229,194,117,.2) 54%,rgba(30,6,10,.38) 65%,transparent 82%);filter:blur(.3px)}
+.page-sheet.is-dragging .page-face:after,.page-sheet.is-releasing .page-face:after{background:linear-gradient(90deg,rgba(0,0,0,.03),transparent 22%,transparent 45%,rgba(0,0,0,.2) 62%,rgba(0,0,0,.5) 100%);filter:blur(5px)}
+
+/* Keep the transition floral detail restrained: 10–12 petals, never a full-screen burst. */
+.fx-petals .rose-petal{animation-duration:1.5s;animation-timing-function:cubic-bezier(.22,.58,.35,1)}
+.rose-petal{width:30px;height:43px}
+@media(max-width:720px){.rose-petal{width:24px;height:34px}}
