@@ -12,7 +12,7 @@ const pages = [
   { id: 'gallery', label: 'Gallery' },
 ];
 
-const RELEASE_MS = 520;
+const RELEASE_MS = 420;
 const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 
@@ -26,11 +26,12 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [celebrate, setCelebrate] = useState(false);
+  const [transitionFx, setTransitionFx] = useState(null);
   const gesture = useRef(null);
   const turnProgressRef = useRef(0);
   const autoTimer = useRef(null);
-  const celebrationTimer = useRef(null);
+  const fxTimer = useRef(null);
+  const audioRef = useRef(null);
 
   const setProgress = (value) => {
     const nextValue = Math.min(Math.max(value, 0), 0.98);
@@ -38,18 +39,19 @@ function App() {
     setTurnProgress(nextValue);
   };
 
-  const triggerCelebration = () => {
-    setCelebrate(false);
-    window.requestAnimationFrame(() => setCelebrate(true));
-    window.clearTimeout(celebrationTimer.current);
-    celebrationTimer.current = window.setTimeout(() => setCelebrate(false), 1100);
+  const triggerFx = (mode) => {
+    setTransitionFx(null);
+    window.requestAnimationFrame(() => setTransitionFx(mode));
+    window.clearTimeout(fxTimer.current);
+    fxTimer.current = window.setTimeout(() => setTransitionFx(null), mode === 'petals' ? 1200 : 900);
   };
 
   const finishTurn = (direction, committed) => {
     window.setTimeout(() => {
       if (committed) {
-        setPage((value) => direction === 'next' ? value + 1 : value - 1);
-        triggerCelebration();
+        const nextPage = direction === 'next' ? page + 1 : page - 1;
+        setPage(nextPage);
+        triggerFx('petals');
       }
       setTurningIndex(null);
       setTurnDirection(null);
@@ -78,9 +80,37 @@ function App() {
     finishTurn('previous', true);
   };
 
-  const openInvitation = () => {
+  const openInvitation = async () => {
     setOpened(true);
     setMusicOn(true);
+    triggerFx('sparkles');
+
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      audio.currentTime = 0;
+      await audio.play();
+    } catch {
+      setMusicOn(false);
+    }
+  };
+
+  const toggleMusic = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (musicOn) {
+      audio.pause();
+      setMusicOn(false);
+      return;
+    }
+
+    try {
+      await audio.play();
+      setMusicOn(true);
+    } catch {
+      setMusicOn(false);
+    }
   };
 
   useEffect(() => {
@@ -90,10 +120,17 @@ function App() {
     return () => window.clearTimeout(autoTimer.current);
   }, [opened, page, turningIndex, hasInteracted]);
 
-  useEffect(() => () => {
-    window.clearTimeout(autoTimer.current);
-    window.clearTimeout(celebrationTimer.current);
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(autoTimer.current);
+      window.clearTimeout(fxTimer.current);
+      audioRef.current?.pause();
+    };
   }, []);
+
+  useEffect(() => {
+    if (opened && page === pages.length - 1) triggerFx('sparkles');
+  }, [opened, page]);
 
   const progress = useMemo(() => `${((page + 1) / pages.length) * 100}%`, [page]);
 
@@ -153,13 +190,15 @@ function App() {
     finishTurn(direction, committed);
   };
 
+  const isSparklePage = page === pages.length - 1;
+
   if (!opened) {
     return (
       <main className="opening-screen">
         <div className="opening-glow" />
         <section className="opening-card" aria-label="Wedding invitation opening">
           <p className="eyebrow">A celebration of love</p>
-          <div className="seal">T<span>&</span>M</div>
+          <div className="seal">T<span>&amp;</span>M</div>
           <p className="script">Together with their families</p>
           <h1>Our Wedding</h1>
           <p className="opening-copy">An invitation to share a beautiful beginning.</p>
@@ -171,16 +210,21 @@ function App() {
   }
 
   return (
-    <main className={`app-shell ${celebrate ? 'celebrate-now' : ''}`}>
+    <main className={`app-shell ${transitionFx ? `fx-${transitionFx}` : ''}`}>
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
-      <div className="celebration-layer" aria-hidden="true">
-        {Array.from({ length: 18 }, (_, index) => <span key={index} className={`celebration-particle particle-${index + 1}`} />)}
+      <div className="transition-effects" aria-hidden="true">
+        {transitionFx === 'petals' && Array.from({ length: 8 }, (_, index) => <span key={index} className={`petal petal-${index + 1}`} />)}
+        {transitionFx === 'sparkles' && Array.from({ length: 7 }, (_, index) => <span key={index} className={`sparkle sparkle-${index + 1}`} />)}
       </div>
+      <audio ref={audioRef} loop preload="none" aria-hidden="true">
+        <source src="/music/wedding-music.mp3" type="audio/mpeg" />
+      </audio>
+
       <header className="topbar">
         <div className="brand-mark">T <span>×</span> M</div>
         <div className="topbar-right">
-          <button className="icon-button" onClick={() => setMusicOn((v) => !v)} aria-label={musicOn ? 'Mute music' : 'Play music'}>{musicOn ? '♫' : '♪'}</button>
+          <button className="icon-button" onClick={toggleMusic} aria-label={musicOn ? 'Mute music' : 'Play music'}>{musicOn ? '♫' : '♪'}</button>
           <span>{page + 1} / {pages.length}</span>
         </div>
       </header>
@@ -238,12 +282,12 @@ function App() {
 
 function PageContent({ page }) {
   switch (page) {
-    case 'couple': return <div className="content-page couple-page"><p className="eyebrow">The beginning of forever</p><h2>Taha<br /><span>&</span><br />Munira</h2><p className="body-copy">Two hearts, one beautiful journey. We invite you to celebrate the love, laughter and life we are building together.</p><div className="photo-placeholder portrait">T & M</div><p className="date-line">20 · 12 · 2026</p></div>;
+    case 'couple': return <div className="content-page couple-page"><p className="eyebrow">The beginning of forever</p><h2>Taha<br /><span>&amp;</span><br />Munira</h2><p className="body-copy">Two hearts, one beautiful journey. We invite you to celebrate the love, laughter and life we are building together.</p><div className="photo-placeholder portrait">T &amp; M</div><p className="date-line">20 · 12 · 2026</p></div>;
     case 'story': return <div className="content-page story-page"><p className="eyebrow">Taha &amp; Munira</p><h2>From a hello<br /><em>to forever.</em></h2><div className="story-line"><span>01</span><p>We met, we laughed, and somewhere between ordinary moments, something extraordinary began.</p></div><div className="story-line"><span>02</span><p>Every chapter brought us closer and made us certain that the best stories are the ones written together.</p></div><div className="story-line"><span>03</span><p>Now, surrounded by the people we love, we begin our favourite chapter yet.</p></div></div>;
     case 'events': return <div className="content-page"><p className="eyebrow">Taha &amp; Munira</p><h2>Wedding<br /><em>Celebrations</em></h2><div className="event-list"><Event date="18 DEC" title="Mehendi" time="6:00 PM" /><Event date="19 DEC" title="Wedding Ceremony" time="7:00 PM" /><Event date="20 DEC" title="Reception" time="8:00 PM" /></div></div>;
     case 'venue': return <div className="content-page venue-page"><p className="eyebrow">Taha &amp; Munira</p><h2>The<br /><em>Venue</em></h2><div className="venue-card"><div className="map-placeholder"><span>MAP</span></div><div><h3>The Grand Garden</h3><p>123 Celebration Avenue<br />Mumbai, India</p><button className="text-button">Get directions ↗</button></div></div></div>;
     case 'gallery': return <div className="content-page gallery-page"><p className="eyebrow">Taha &amp; Munira</p><h2>Our<br /><em>Moments</em></h2><div className="gallery-grid"><div className="photo-placeholder g-one">01</div><div className="photo-placeholder g-two">02</div><div className="photo-placeholder g-three">03</div><div className="photo-placeholder g-four">04</div></div><a className="whatsapp-button" href="https://wa.me/" target="_blank" rel="noreferrer">RSVP on WhatsApp ↗</a></div>;
-    default: return <div className="content-page cover-page"><p className="eyebrow">You are invited</p><div className="cover-ornament">❦</div><h2>Taha<br /><span>&</span><br />Munira</h2><p className="script">are getting married</p><div className="cover-date">20 December 2026</div><p className="cover-location">Mumbai · India</p></div>;
+    default: return <div className="content-page cover-page"><p className="eyebrow">You are invited</p><div className="cover-ornament">❦</div><h2>Taha<br /><span>&amp;</span><br />Munira</h2><p className="script">are getting married</p><div className="cover-date">20 December 2026</div><p className="cover-location">Mumbai · India</p></div>;
   }
 }
 
