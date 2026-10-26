@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import './auto-effects.css';
+import './royal-opening.css';
 
 const pages = [
   { id: 'cover', label: 'Invitation' },
@@ -17,6 +18,7 @@ const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 const PETAL_COUNT = 10;
 const GOLD_DUST_COUNT = 7;
+const ROYAL_OPEN_MS = 760;
 
 function RosePetal({ index }) {
   return (
@@ -49,6 +51,7 @@ function GoldDust({ index }) {
 function App() {
   const [page, setPage] = useState(0);
   const [opened, setOpened] = useState(false);
+  const [openingExiting, setOpeningExiting] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
   const [turningIndex, setTurningIndex] = useState(null);
   const [turnDirection, setTurnDirection] = useState(null);
@@ -61,6 +64,7 @@ function App() {
   const turnProgressRef = useRef(0);
   const autoTimer = useRef(null);
   const fxTimer = useRef(null);
+  const openingTimer = useRef(null);
   const audioRef = useRef(null);
 
   const setProgress = (value) => {
@@ -112,8 +116,12 @@ function App() {
 
   const openInvitation = async () => {
     setOpened(true);
+    setOpeningExiting(true);
     setMusicOn(true);
     triggerFx('sparkles');
+    window.clearTimeout(openingTimer.current);
+    openingTimer.current = window.setTimeout(() => setOpeningExiting(false), ROYAL_OPEN_MS);
+
     const audio = audioRef.current;
     if (!audio) return;
     try {
@@ -150,13 +158,14 @@ function App() {
   useEffect(() => () => {
     window.clearTimeout(autoTimer.current);
     window.clearTimeout(fxTimer.current);
+    window.clearTimeout(openingTimer.current);
     audioRef.current?.pause();
   }, []);
 
   const progress = useMemo(() => `${((page + 1) / pages.length) * 100}%`, [page]);
 
   const startGesture = (event) => {
-    if (turningIndex !== null || !opened) return;
+    if (turningIndex !== null || !opened || openingExiting) return;
     setHasInteracted(true);
     gesture.current = { pointerId: event.pointerId, startX: event.clientX, direction: null };
     event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -203,70 +212,72 @@ function App() {
     finishTurn(direction, committed);
   };
 
-  if (!opened) {
-    return (
-      <main className="opening-screen">
-        <div className="opening-glow" />
-        <section className="opening-card" aria-label="Wedding invitation opening">
-          <p className="eyebrow">A celebration of love</p>
-          <div className="seal">T<span>&amp;</span>M</div>
-          <p className="script">Together with their families</p>
-          <h1>Our Wedding</h1>
-          <p className="opening-copy">An invitation to share a beautiful beginning.</p>
-          <button className="primary-button" onClick={openInvitation}>Open Invitation</button>
-          <p className="tap-hint">Tap to enter</p>
-        </section>
-      </main>
-    );
-  }
-
   return (
-    <main className={`app-shell ${transitionFx ? `fx-${transitionFx}` : ''}`}>
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
-      <div className="transition-effects" aria-hidden="true">
-        {transitionFx === 'petals' && <>
-          {Array.from({ length: PETAL_COUNT }, (_, index) => <RosePetal key={`petal-${index}`} index={index} />)}
-          {Array.from({ length: GOLD_DUST_COUNT }, (_, index) => <GoldDust key={`dust-${index}`} index={index} />)}
-        </>}
-        {transitionFx === 'sparkles' && Array.from({ length: 7 }, (_, index) => <span key={index} className={`sparkle sparkle-${index + 1}`} />)}
-      </div>
-      <audio ref={audioRef} loop preload="none" aria-hidden="true"><source src="/music/wedding-music.mp3" type="audio/mpeg" /></audio>
-
-      <header className="topbar">
-        <div className="brand-mark">T <span>×</span> M</div>
-        <div className="topbar-right">
-          <button className="icon-button" onClick={toggleMusic} aria-label={musicOn ? 'Mute music' : 'Play music'}>{musicOn ? '♫' : '♪'}</button>
-          <span>{page + 1} / {pages.length}</span>
+    <>
+      <main className={`app-shell ${transitionFx ? `fx-${transitionFx}` : ''}`}>
+        <div className="ambient ambient-one" />
+        <div className="ambient ambient-two" />
+        <div className="transition-effects" aria-hidden="true">
+          {transitionFx === 'petals' && <>
+            {Array.from({ length: PETAL_COUNT }, (_, index) => <RosePetal key={`petal-${index}`} index={index} />)}
+            {Array.from({ length: GOLD_DUST_COUNT }, (_, index) => <GoldDust key={`dust-${index}`} index={index} />)}
+          </>}
+          {transitionFx === 'sparkles' && Array.from({ length: 7 }, (_, index) => <span key={index} className={`sparkle sparkle-${index + 1}`} />)}
         </div>
-      </header>
+        <audio ref={audioRef} loop preload="none" aria-hidden="true"><source src="/music/wedding-music.mp3" type="audio/mpeg" /></audio>
 
-      <section className="book-stage" onPointerDown={startGesture} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={(event) => endGesture(event, true)} aria-label="Wedding invitation book">
-        <div className="book-shadow" />
-        <div className="book">
-          <div className="paper-stack" />
-          <div className="book-cover-back" />
-          <div className="book-spine" />
-          <div className="bookmark-ribbon" aria-hidden="true"><span className="ribbon-tail" /><span className="ribbon-tassel"><i /><b /><em /></span></div>
-          {pages.map((item, index) => {
-            const isTurning = index === turningIndex;
-            const className = ['page-sheet', index < page ? 'is-turned' : '', index === page ? 'is-current' : '', isTurning ? `is-turning-${turnDirection}` : '', isTurning && isDragging ? 'is-dragging' : '', isTurning && isReleasing ? 'is-releasing' : ''].filter(Boolean).join(' ');
-            return (
-              <article key={item.id} className={className} style={{ zIndex: isTurning && turnDirection === 'previous' ? pages.length + 2 : pages.length - index, '--turn-progress': turnProgress }} aria-hidden={index !== page}>
-                <div className="page-face page-front"><PageContent page={item.id} /></div>
-                <div className="page-face page-back"><div className="page-back-inner"><span>T &amp; M</span><small>{index + 1}</small></div></div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+        <header className="topbar">
+          <div className="brand-mark">T <span>×</span> M</div>
+          <div className="topbar-right">
+            <button className="icon-button" onClick={toggleMusic} aria-label={musicOn ? 'Mute music' : 'Play music'}>{musicOn ? '♫' : '♪'}</button>
+            <span>{page + 1} / {pages.length}</span>
+          </div>
+        </header>
 
-      <nav className="book-controls" aria-label="Invitation navigation">
-        <button className="nav-button" onClick={previous} disabled={page === 0 || turningIndex !== null} aria-label="Previous page">←</button>
-        <div className="progress-wrap"><div className="progress-track"><span style={{ width: progress }} /></div><div className="page-label">{pages[page].label}</div></div>
-        <button className="nav-button" onClick={next} disabled={page === pages.length - 1 || turningIndex !== null} aria-label="Next page">→</button>
-      </nav>
-    </main>
+        <section className="book-stage" onPointerDown={startGesture} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={(event) => endGesture(event, true)} aria-label="Wedding invitation book">
+          <div className="book-shadow" />
+          <div className="book">
+            <div className="paper-stack" />
+            <div className="book-cover-back" />
+            <div className="book-spine" />
+            <div className="bookmark-ribbon" aria-hidden="true"><span className="ribbon-tail" /><span className="ribbon-tassel"><i /><b /><em /></span></div>
+            {pages.map((item, index) => {
+              const isTurning = index === turningIndex;
+              const className = ['page-sheet', index < page ? 'is-turned' : '', index === page ? 'is-current' : '', isTurning ? `is-turning-${turnDirection}` : '', isTurning && isDragging ? 'is-dragging' : '', isTurning && isReleasing ? 'is-releasing' : ''].filter(Boolean).join(' ');
+              return (
+                <article key={item.id} className={className} style={{ zIndex: isTurning && turnDirection === 'previous' ? pages.length + 2 : pages.length - index, '--turn-progress': turnProgress }} aria-hidden={index !== page}>
+                  <div className="page-face page-front"><PageContent page={item.id} /></div>
+                  <div className="page-face page-back"><div className="page-back-inner"><span>T &amp; M</span><small>{index + 1}</small></div></div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <nav className="book-controls" aria-label="Invitation navigation">
+          <button className="nav-button" onClick={previous} disabled={page === 0 || turningIndex !== null} aria-label="Previous page">←</button>
+          <div className="progress-wrap"><div className="progress-track"><span style={{ width: progress }} /></div><div className="page-label">{pages[page].label}</div></div>
+          <button className="nav-button" onClick={next} disabled={page === pages.length - 1 || turningIndex !== null} aria-label="Next page">→</button>
+        </nav>
+      </main>
+
+      {!opened || openingExiting ? (
+        <main className={`royal-opening ${openingExiting ? 'is-exiting' : ''}`} aria-label="Wedding invitation entrance">
+          <div className="royal-portal" aria-hidden="true" />
+          <div className="royal-velvet royal-velvet-left" aria-hidden="true" />
+          <div className="royal-velvet royal-velvet-right" aria-hidden="true" />
+          <section className="royal-crest">
+            <p className="royal-kicker">The Wedding Of</p>
+            <div className="royal-crest-ring"><div className="royal-monogram">T<span>&amp;</span>M</div></div>
+            <h1>Taha <span className="royal-amp">&amp;</span> Munira</h1>
+            <div className="royal-rule" />
+            <p className="royal-date">20 December 2026 · Mumbai, India</p>
+            <button className="royal-cta" onClick={openInvitation} disabled={openingExiting}>Open The Invitation</button>
+            <p className="royal-hint">A royal beginning to a beautiful chapter</p>
+          </section>
+        </main>
+      ) : null}
+    </>
   );
 }
 
