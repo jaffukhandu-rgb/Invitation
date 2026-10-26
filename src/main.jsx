@@ -15,6 +15,31 @@ const pages = [
 const RELEASE_MS = 420;
 const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
+const PETAL_COUNT = 12;
+
+function RosePetal({ index }) {
+  return (
+    <span className={`rose-petal rose-petal-${index + 1}`} aria-hidden="true">
+      <svg viewBox="0 0 44 62" focusable="false">
+        <defs>
+          <linearGradient id={`petal-fill-${index}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#e83a4d" />
+            <stop offset="0.48" stopColor="#a90f2c" />
+            <stop offset="1" stopColor="#4d0718" />
+          </linearGradient>
+          <radialGradient id={`petal-light-${index}`} cx="32%" cy="24%" r="72%">
+            <stop offset="0" stopColor="#ff9b9e" stopOpacity=".72" />
+            <stop offset=".42" stopColor="#e94b5b" stopOpacity=".22" />
+            <stop offset="1" stopColor="#5d071b" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <path d="M22 2C35 8 43 19 39 33c-3 12-12 21-20 27C10 53 3 43 4 31 5 17 11 8 22 2Z" fill={`url(#petal-fill-${index})`} />
+        <path d="M22 2C35 8 43 19 39 33c-3 12-12 21-20 27C10 53 3 43 4 31 5 17 11 8 22 2Z" fill={`url(#petal-light-${index})`} />
+        <path d="M22 7C20 24 18 39 15 52" fill="none" stroke="#ffb0ad" strokeOpacity=".25" strokeWidth="1.2" />
+      </svg>
+    </span>
+  );
+}
 
 function App() {
   const [page, setPage] = useState(0);
@@ -43,7 +68,7 @@ function App() {
     setTransitionFx(null);
     window.requestAnimationFrame(() => setTransitionFx(mode));
     window.clearTimeout(fxTimer.current);
-    fxTimer.current = window.setTimeout(() => setTransitionFx(null), mode === 'petals' ? 1200 : 900);
+    fxTimer.current = window.setTimeout(() => setTransitionFx(null), mode === 'petals' ? 1500 : 900);
   };
 
   const finishTurn = (direction, committed) => {
@@ -84,7 +109,6 @@ function App() {
     setOpened(true);
     setMusicOn(true);
     triggerFx('sparkles');
-
     const audio = audioRef.current;
     if (!audio) return;
     try {
@@ -98,13 +122,11 @@ function App() {
   const toggleMusic = async () => {
     const audio = audioRef.current;
     if (!audio) return;
-
     if (musicOn) {
       audio.pause();
       setMusicOn(false);
       return;
     }
-
     try {
       await audio.play();
       setMusicOn(true);
@@ -120,17 +142,11 @@ function App() {
     return () => window.clearTimeout(autoTimer.current);
   }, [opened, page, turningIndex, hasInteracted]);
 
-  useEffect(() => {
-    return () => {
-      window.clearTimeout(autoTimer.current);
-      window.clearTimeout(fxTimer.current);
-      audioRef.current?.pause();
-    };
+  useEffect(() => () => {
+    window.clearTimeout(autoTimer.current);
+    window.clearTimeout(fxTimer.current);
+    audioRef.current?.pause();
   }, []);
-
-  useEffect(() => {
-    if (opened && page === pages.length - 1) triggerFx('sparkles');
-  }, [opened, page]);
 
   const progress = useMemo(() => `${((page + 1) / pages.length) * 100}%`, [page]);
 
@@ -144,12 +160,10 @@ function App() {
   const moveGesture = (event) => {
     const active = gesture.current;
     if (!active || active.pointerId !== event.pointerId || turningIndex !== null) return;
-
     const deltaX = event.clientX - active.startX;
     if (!active.direction && Math.abs(deltaX) > 8) {
       if (deltaX < 0 && page < pages.length - 1) active.direction = 'next';
       if (deltaX > 0 && page > 0) active.direction = 'previous';
-
       if (active.direction) {
         setTurningIndex(active.direction === 'next' ? page : page - 1);
         setTurnDirection(active.direction);
@@ -158,23 +172,18 @@ function App() {
         setProgress(0);
       }
     }
-
     if (!active.direction) return;
-
     const stageWidth = event.currentTarget.getBoundingClientRect().width;
-    const raw = Math.abs(deltaX) / Math.max(stageWidth, 1);
-    setProgress(raw);
+    setProgress(Math.abs(deltaX) / Math.max(stageWidth, 1));
   };
 
   const endGesture = (event, cancelled = false) => {
     const active = gesture.current;
     if (!active || active.pointerId !== event.pointerId) return;
-
     const direction = active.direction;
     const currentProgress = turnProgressRef.current;
     gesture.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
-
     if (!direction || cancelled) {
       setIsDragging(false);
       setTurningIndex(null);
@@ -182,15 +191,12 @@ function App() {
       setProgress(0);
       return;
     }
-
     const committed = currentProgress >= DRAG_THRESHOLD;
     setIsDragging(false);
     setIsReleasing(true);
     setProgress(committed ? 1 : 0);
     finishTurn(direction, committed);
   };
-
-  const isSparklePage = page === pages.length - 1;
 
   if (!opened) {
     return (
@@ -214,12 +220,10 @@ function App() {
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       <div className="transition-effects" aria-hidden="true">
-        {transitionFx === 'petals' && Array.from({ length: 8 }, (_, index) => <span key={index} className={`petal petal-${index + 1}`} />)}
+        {transitionFx === 'petals' && Array.from({ length: PETAL_COUNT }, (_, index) => <RosePetal key={index} index={index} />)}
         {transitionFx === 'sparkles' && Array.from({ length: 7 }, (_, index) => <span key={index} className={`sparkle sparkle-${index + 1}`} />)}
       </div>
-      <audio ref={audioRef} loop preload="none" aria-hidden="true">
-        <source src="/music/wedding-music.mp3" type="audio/mpeg" />
-      </audio>
+      <audio ref={audioRef} loop preload="none" aria-hidden="true"><source src="/music/wedding-music.mp3" type="audio/mpeg" /></audio>
 
       <header className="topbar">
         <div className="brand-mark">T <span>×</span> M</div>
@@ -229,39 +233,18 @@ function App() {
         </div>
       </header>
 
-      <section
-        className="book-stage"
-        onPointerDown={startGesture}
-        onPointerMove={moveGesture}
-        onPointerUp={endGesture}
-        onPointerCancel={(event) => endGesture(event, true)}
-        aria-label="Wedding invitation book"
-      >
+      <section className="book-stage" onPointerDown={startGesture} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={(event) => endGesture(event, true)} aria-label="Wedding invitation book">
         <div className="book-shadow" />
         <div className="book">
           <div className="paper-stack" />
+          <div className="book-cover-back" />
           <div className="book-spine" />
+          <div className="bookmark-ribbon" aria-hidden="true"><span className="ribbon-tail" /><span className="ribbon-tassel"><i /><b /><em /></span></div>
           {pages.map((item, index) => {
             const isTurning = index === turningIndex;
-            const className = [
-              'page-sheet',
-              index < page ? 'is-turned' : '',
-              index === page ? 'is-current' : '',
-              isTurning ? `is-turning-${turnDirection}` : '',
-              isTurning && isDragging ? 'is-dragging' : '',
-              isTurning && isReleasing ? 'is-releasing' : '',
-            ].filter(Boolean).join(' ');
-
+            const className = ['page-sheet', index < page ? 'is-turned' : '', index === page ? 'is-current' : '', isTurning ? `is-turning-${turnDirection}` : '', isTurning && isDragging ? 'is-dragging' : '', isTurning && isReleasing ? 'is-releasing' : ''].filter(Boolean).join(' ');
             return (
-              <article
-                key={item.id}
-                className={className}
-                style={{
-                  zIndex: isTurning && turnDirection === 'previous' ? pages.length + 2 : pages.length - index,
-                  '--turn-progress': turnProgress,
-                }}
-                aria-hidden={index !== page}
-              >
+              <article key={item.id} className={className} style={{ zIndex: isTurning && turnDirection === 'previous' ? pages.length + 2 : pages.length - index, '--turn-progress': turnProgress }} aria-hidden={index !== page}>
                 <div className="page-face page-front"><PageContent page={item.id} /></div>
                 <div className="page-face page-back"><div className="page-back-inner"><span>T &amp; M</span><small>{index + 1}</small></div></div>
               </article>
@@ -275,7 +258,6 @@ function App() {
         <div className="progress-wrap"><div className="progress-track"><span style={{ width: progress }} /></div><div className="page-label">{pages[page].label}</div></div>
         <button className="nav-button" onClick={next} disabled={page === pages.length - 1 || turningIndex !== null} aria-label="Next page">→</button>
       </nav>
-      <div className="page-hint" aria-hidden="true">← TURN THE PAGE →</div>
     </main>
   );
 }
@@ -291,8 +273,6 @@ function PageContent({ page }) {
   }
 }
 
-function Event({ date, title, time }) {
-  return <article className="event"><div className="event-date">{date}</div><div><h3>{title}</h3><p>{time}</p></div></article>;
-}
+function Event({ date, title, time }) { return <article className="event"><div className="event-date">{date}</div><div><h3>{title}</h3><p>{time}</p></div></article>; }
 
 createRoot(document.getElementById('root')).render(<App />);
