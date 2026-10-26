@@ -73,7 +73,7 @@ function App() {
     setTransitionFx(null);
     window.requestAnimationFrame(() => setTransitionFx(mode));
     window.clearTimeout(fxTimer.current);
-    fxTimer.current = window.setTimeout(() => setTransitionFx(null), mode === 'petals' ? 1500 : 900);
+    window.setTimeout(() => setTransitionFx(null), mode === 'petals' ? 1100 : 900);
   };
 
   const finishTurn = (direction, committed) => {
