@@ -12,7 +12,7 @@ const pages = [
   { id: 'gallery', label: 'Gallery' },
 ];
 
-const RELEASE_MS = 420;
+const RELEASE_MS = 520;
 const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 
@@ -26,9 +26,11 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
   const gesture = useRef(null);
   const turnProgressRef = useRef(0);
   const autoTimer = useRef(null);
+  const celebrationTimer = useRef(null);
 
   const setProgress = (value) => {
     const nextValue = Math.min(Math.max(value, 0), 0.98);
@@ -36,10 +38,18 @@ function App() {
     setTurnProgress(nextValue);
   };
 
+  const triggerCelebration = () => {
+    setCelebrate(false);
+    window.requestAnimationFrame(() => setCelebrate(true));
+    window.clearTimeout(celebrationTimer.current);
+    celebrationTimer.current = window.setTimeout(() => setCelebrate(false), 1100);
+  };
+
   const finishTurn = (direction, committed) => {
     window.setTimeout(() => {
       if (committed) {
         setPage((value) => direction === 'next' ? value + 1 : value - 1);
+        triggerCelebration();
       }
       setTurningIndex(null);
       setTurnDirection(null);
@@ -79,6 +89,11 @@ function App() {
     autoTimer.current = window.setTimeout(() => next(), AUTO_TURN_MS);
     return () => window.clearTimeout(autoTimer.current);
   }, [opened, page, turningIndex, hasInteracted]);
+
+  useEffect(() => () => {
+    window.clearTimeout(autoTimer.current);
+    window.clearTimeout(celebrationTimer.current);
+  }, []);
 
   const progress = useMemo(() => `${((page + 1) / pages.length) * 100}%`, [page]);
 
@@ -156,9 +171,12 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${celebrate ? 'celebrate-now' : ''}`}>
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
+      <div className="celebration-layer" aria-hidden="true">
+        {Array.from({ length: 18 }, (_, index) => <span key={index} className={`celebration-particle particle-${index + 1}`} />)}
+      </div>
       <header className="topbar">
         <div className="brand-mark">T <span>×</span> M</div>
         <div className="topbar-right">
