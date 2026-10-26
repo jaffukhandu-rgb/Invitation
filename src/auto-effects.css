@@ -1,50 +1,46 @@
-/* Cinematic paper-turn layer. */
+/* Restrained, gesture-driven paper curl layer. Keep this file limited to interaction physics. */
 .page-sheet.is-turning-next.is-dragging,
 .page-sheet.is-turning-previous.is-dragging {
   animation: none !important;
   transition: none !important;
-  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(calc(sin(var(--turn-progress) * 3.14159) * 22px)) scaleY(calc(1 - var(--turn-progress) * .018)) !important;
-  filter: drop-shadow(calc(var(--turn-progress) * 20px - 5px) 10px 24px rgba(37,20,20,calc(.16 + var(--turn-progress) * .28))) !important;
+  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(calc(var(--turn-progress) * (1 - var(--turn-progress)) * 26px)) scaleX(calc(1 - var(--turn-progress) * .055)) skewY(calc(var(--turn-progress) * -1.2deg)) !important;
+  filter: drop-shadow(calc(var(--turn-progress) * 18px - 5px) 11px 22px rgba(0,0,0,calc(.12 + var(--turn-progress) * .28))) !important;
 }
 
 .page-sheet.is-turning-previous.is-dragging {
-  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(calc(sin(var(--turn-progress) * 3.14159) * 22px)) scaleY(calc(1 - (1 - var(--turn-progress)) * .018)) !important;
+  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(calc(var(--turn-progress) * (1 - var(--turn-progress)) * 26px)) scaleX(calc(.945 + var(--turn-progress) * .055)) skewY(calc((1 - var(--turn-progress)) * 1.2deg)) !important;
 }
 
 .page-sheet.is-turning-next.is-releasing,
 .page-sheet.is-turning-previous.is-releasing {
   animation: none !important;
-  transition: transform 520ms cubic-bezier(.16,1,.3,1), filter 520ms cubic-bezier(.16,1,.3,1) !important;
+  transition: transform 420ms cubic-bezier(.25,1,.5,1), filter 420ms cubic-bezier(.25,1,.5,1) !important;
 }
 
 .page-sheet.is-turning-next.is-releasing {
-  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(0) scaleY(1) !important;
+  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(0) scaleX(1) skewY(0deg) !important;
 }
 
 .page-sheet.is-turning-previous.is-releasing {
-  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(0) scaleY(1) !important;
+  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(0) scaleX(1) skewY(0deg) !important;
+}
+
+.page-sheet.is-dragging .page-face:before,
+.page-sheet.is-releasing .page-face:before {
+  transform: translateX(calc((var(--turn-progress) - .5) * 145%));
 }
 
 .page-sheet.is-dragging .page-face:after {
-  opacity: calc(.12 + var(--turn-progress) * .82) !important;
-  background: linear-gradient(90deg,rgba(39,20,18,calc(.14 + var(--turn-progress) * .28)),transparent 15%,transparent 62%,rgba(255,255,255,calc(.08 + var(--turn-progress) * .22)) 84%,rgba(39,20,18,calc(.05 + var(--turn-progress) * .18)) 100%) !important;
+  opacity: calc(.18 + var(--turn-progress) * .58) !important;
 }
 
-.page-sheet.is-dragging:before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 12;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(90deg,transparent 45%,rgba(255,255,255,calc(.02 + var(--turn-progress) * .2)) 52%,rgba(58,30,28,calc(.04 + var(--turn-progress) * .24)) 67%,transparent 82%);
-  mix-blend-mode: multiply;
+.page-sheet.is-releasing .page-face:after {
+  opacity: .42 !important;
 }
 
-.page-sheet.is-turning-next.is-releasing,
-.page-sheet.is-turning-previous.is-releasing { filter: drop-shadow(0 14px 25px rgba(37,20,20,.28)) !important; }
-
-.page-hint { position:relative; z-index:130; margin-top:8px; color:rgba(238,220,208,.72); font-size:9px; font-weight:600; letter-spacing:.28em; text-transform:uppercase; animation:turnHintPulse 1.8s ease-in-out infinite; pointer-events:none; }
-@keyframes turnHintPulse { 0%,100%{opacity:.42;transform:translateY(0)} 50%{opacity:1;transform:translateY(-3px)} }
-@media (max-width:640px){.page-hint{font-size:8px;letter-spacing:.22em}}
-@media (prefers-reduced-motion:reduce){.page-hint{animation:none}.page-sheet.is-turning-next,.page-sheet.is-turning-previous{animation-duration:.01ms!important}}
+@media (prefers-reduced-motion: reduce) {
+  .page-sheet.is-turning-next.is-releasing,
+  .page-sheet.is-turning-previous.is-releasing {
+    transition-duration: .01ms !important;
+  }
+}
