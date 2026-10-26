@@ -1,0 +1,56 @@
+/* Gesture-driven page turning and discoverability layer. */
+.page-sheet.is-turning-next.is-dragging,
+.page-sheet.is-turning-previous.is-dragging {
+  animation: none !important;
+  transition: none !important;
+  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(calc(sin(var(--turn-progress) * 3.14159) * 18px)) !important;
+  filter: drop-shadow(calc(var(--turn-progress) * 16px - 4px) 8px 18px rgba(37,20,20,calc(.16 + var(--turn-progress) * .22))) !important;
+}
+
+.page-sheet.is-turning-previous.is-dragging {
+  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(calc(sin(var(--turn-progress) * 3.14159) * 18px)) !important;
+}
+
+.page-sheet.is-turning-next.is-releasing,
+.page-sheet.is-turning-previous.is-releasing {
+  animation: none !important;
+  transition: transform 420ms cubic-bezier(.22,1,.36,1), filter 420ms cubic-bezier(.22,1,.36,1) !important;
+}
+
+.page-sheet.is-turning-next.is-releasing {
+  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(0) !important;
+}
+
+.page-sheet.is-turning-previous.is-releasing {
+  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(0) !important;
+}
+
+.page-sheet.is-dragging .page-face:after {
+  opacity: calc(.15 + var(--turn-progress) * .7) !important;
+}
+
+.page-hint {
+  position: relative;
+  z-index: 130;
+  margin-top: 8px;
+  color: rgba(238,220,208,.7);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  animation: turnHintPulse 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes turnHintPulse {
+  0%,100% { opacity: .45; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+@media (max-width: 640px) {
+  .page-hint { font-size: 8px; letter-spacing: .22em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-hint { animation: none; }
+}
