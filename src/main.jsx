@@ -18,7 +18,7 @@ const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 const PETAL_COUNT = 10;
 const GOLD_DUST_COUNT = 7;
-const ROYAL_OPEN_MS = 4000;
+const ROYAL_OPEN_MS = 5000;
 
 function RosePetal({ index }) {
   return (
@@ -211,7 +211,7 @@ function App() {
 
   return (
     <>
-      <main className={`app-shell ${transitionFx ? `fx-${transitionFx}` : ''}`}>
+      <main className={`app-shell ${opened ? 'is-entering' : ''} ${transitionFx ? `fx-${transitionFx}` : ''}`}>
         <div className="ambient ambient-one" />
         <div className="ambient ambient-two" />
         <div className="transition-effects" aria-hidden="true">
@@ -260,15 +260,18 @@ function App() {
 
       {!opened || openingExiting ? (
         <main className={`royal-opening ${openingExiting ? 'is-exiting' : ''}`} aria-label="Wedding invitation entrance">
-          <div className="royal-arch" aria-hidden="true" />
-          <div className="royal-door royal-door-left" aria-hidden="true"><span className="royal-door-knocker" /></div>
-          <div className="royal-door royal-door-right" aria-hidden="true"><span className="royal-door-knocker" /></div>
+          <div className="royal-envelope" aria-hidden="true">
+            <div className="royal-panel royal-panel-top"><span /></div>
+            <div className="royal-panel royal-panel-right"><span /></div>
+            <div className="royal-panel royal-panel-bottom"><span /></div>
+            <div className="royal-panel royal-panel-left"><span /></div>
+          </div>
           <section className="royal-crest">
             <p className="royal-kicker">The Wedding Of</p>
             <div className="royal-crest-ring"><div className="royal-monogram">T<span>&amp;</span>M</div></div>
             <p className="royal-door-date">20 DECEMBER 2026 · MUMBAI</p>
-            <button className="royal-cta" onClick={openInvitation} disabled={openingExiting}>Open The Doors</button>
-            <p className="royal-hint">Enter the celebration</p>
+            <button className="royal-cta" onClick={openInvitation} disabled={openingExiting}>Open Invitation</button>
+            <p className="royal-hint">Unseal the celebration</p>
           </section>
         </main>
       ) : null}
