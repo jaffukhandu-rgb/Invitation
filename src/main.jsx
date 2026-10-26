@@ -18,7 +18,7 @@ const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 const PETAL_COUNT = 10;
 const GOLD_DUST_COUNT = 7;
-const ROYAL_OPEN_MS = 760;
+const ROYAL_OPEN_MS = 1050;
 
 function RosePetal({ index }) {
   return (
@@ -178,26 +178,23 @@ function App() {
     if (!active.direction && Math.abs(deltaX) > 8) {
       if (deltaX < 0 && page < pages.length - 1) active.direction = 'next';
       if (deltaX > 0 && page > 0) active.direction = 'previous';
-      if (active.direction) {
-        setTurningIndex(active.direction === 'next' ? page : page - 1);
-        setTurnDirection(active.direction);
-        setIsDragging(true);
-        setIsReleasing(false);
-        setProgress(0);
-      }
+      if (!active.direction) return;
+      setTurningIndex(active.direction === 'next' ? page : page - 1);
+      setTurnDirection(active.direction);
+      setIsDragging(true);
     }
     if (!active.direction) return;
-    const stageWidth = event.currentTarget.getBoundingClientRect().width;
-    setProgress(Math.abs(deltaX) / Math.max(stageWidth, 1));
+    const directionDelta = active.direction === 'next' ? -deltaX : deltaX;
+    setProgress(Math.abs(directionDelta) / event.currentTarget.clientWidth);
   };
 
   const endGesture = (event, cancelled = false) => {
     const active = gesture.current;
+    gesture.current = null;
     if (!active || active.pointerId !== event.pointerId) return;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
     const direction = active.direction;
     const currentProgress = turnProgressRef.current;
-    gesture.current = null;
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
     if (!direction || cancelled) {
       setIsDragging(false);
       setTurningIndex(null);
@@ -263,17 +260,15 @@ function App() {
 
       {!opened || openingExiting ? (
         <main className={`royal-opening ${openingExiting ? 'is-exiting' : ''}`} aria-label="Wedding invitation entrance">
-          <div className="royal-portal" aria-hidden="true" />
-          <div className="royal-velvet royal-velvet-left" aria-hidden="true" />
-          <div className="royal-velvet royal-velvet-right" aria-hidden="true" />
+          <div className="royal-arch" aria-hidden="true" />
+          <div className="royal-door royal-door-left" aria-hidden="true"><span className="royal-door-knocker" /></div>
+          <div className="royal-door royal-door-right" aria-hidden="true"><span className="royal-door-knocker" /></div>
           <section className="royal-crest">
             <p className="royal-kicker">The Wedding Of</p>
             <div className="royal-crest-ring"><div className="royal-monogram">T<span>&amp;</span>M</div></div>
-            <h1>Taha <span className="royal-amp">&amp;</span> Munira</h1>
-            <div className="royal-rule" />
-            <p className="royal-date">20 December 2026 · Mumbai, India</p>
-            <button className="royal-cta" onClick={openInvitation} disabled={openingExiting}>Open The Invitation</button>
-            <p className="royal-hint">A royal beginning to a beautiful chapter</p>
+            <p className="royal-door-date">20 DECEMBER 2026 · MUMBAI</p>
+            <button className="royal-cta" onClick={openInvitation} disabled={openingExiting}>Open The Doors</button>
+            <p className="royal-hint">Enter the celebration</p>
           </section>
         </main>
       ) : null}
