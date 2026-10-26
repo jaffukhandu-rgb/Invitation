@@ -1,46 +1,11 @@
-/* Restrained, gesture-driven paper curl layer. Keep this file limited to interaction physics. */
+/* Physical page-turn physics. Visual styling lives in styles.css. */
 .page-sheet.is-turning-next.is-dragging,
-.page-sheet.is-turning-previous.is-dragging {
-  animation: none !important;
-  transition: none !important;
-  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(calc(var(--turn-progress) * (1 - var(--turn-progress)) * 26px)) scaleX(calc(1 - var(--turn-progress) * .055)) skewY(calc(var(--turn-progress) * -1.2deg)) !important;
-  filter: drop-shadow(calc(var(--turn-progress) * 18px - 5px) 11px 22px rgba(0,0,0,calc(.12 + var(--turn-progress) * .28))) !important;
-}
-
-.page-sheet.is-turning-previous.is-dragging {
-  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(calc(var(--turn-progress) * (1 - var(--turn-progress)) * 26px)) scaleX(calc(.945 + var(--turn-progress) * .055)) skewY(calc((1 - var(--turn-progress)) * 1.2deg)) !important;
-}
-
-.page-sheet.is-turning-next.is-releasing,
-.page-sheet.is-turning-previous.is-releasing {
-  animation: none !important;
-  transition: transform 420ms cubic-bezier(.25,1,.5,1), filter 420ms cubic-bezier(.25,1,.5,1) !important;
-}
-
-.page-sheet.is-turning-next.is-releasing {
-  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(0) scaleX(1) skewY(0deg) !important;
-}
-
-.page-sheet.is-turning-previous.is-releasing {
-  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(0) scaleX(1) skewY(0deg) !important;
-}
-
-.page-sheet.is-dragging .page-face:before,
-.page-sheet.is-releasing .page-face:before {
-  transform: translateX(calc((var(--turn-progress) - .5) * 145%));
-}
-
-.page-sheet.is-dragging .page-face:after {
-  opacity: calc(.18 + var(--turn-progress) * .58) !important;
-}
-
-.page-sheet.is-releasing .page-face:after {
-  opacity: .42 !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-sheet.is-turning-next.is-releasing,
-  .page-sheet.is-turning-previous.is-releasing {
-    transition-duration: .01ms !important;
-  }
-}
+.page-sheet.is-turning-previous.is-dragging{animation:none!important;transition:none!important;transform:rotateY(calc(var(--turn-progress)*-180deg)) translateZ(calc(var(--turn-progress)*(1 - var(--turn-progress))*30px)) scaleX(calc(1 - var(--turn-progress)*.055)) skewY(calc(var(--turn-progress)*-1.2deg))!important;filter:drop-shadow(calc(var(--turn-progress)*20px - 5px) 11px 24px rgba(38,12,18,calc(.14 + var(--turn-progress)*.3)))!important}
+.page-sheet.is-turning-previous.is-dragging{transform:rotateY(calc((1 - var(--turn-progress))*-180deg)) translateZ(calc(var(--turn-progress)*(1 - var(--turn-progress))*30px)) scaleX(calc(.945 + var(--turn-progress)*.055)) skewY(calc((1 - var(--turn-progress))*1.2deg))!important}
+.page-sheet.is-turning-next.is-releasing,.page-sheet.is-turning-previous.is-releasing{animation:none!important;transition:transform 420ms cubic-bezier(.25,1,.5,1),filter 420ms cubic-bezier(.25,1,.5,1)!important}
+.page-sheet.is-turning-next.is-releasing{transform:rotateY(calc(var(--turn-progress)*-180deg)) translateZ(0) scaleX(1) skewY(0deg)!important}
+.page-sheet.is-turning-previous.is-releasing{transform:rotateY(calc((1 - var(--turn-progress))*-180deg)) translateZ(0) scaleX(1) skewY(0deg)!important}
+.page-sheet.is-dragging .page-face:before,.page-sheet.is-releasing .page-face:before{transform:translateX(calc((var(--turn-progress) - .5)*145%));opacity:1}
+.page-sheet.is-dragging .page-face:after{opacity:calc(.18 + var(--turn-progress)*.58)!important}
+.page-sheet.is-releasing .page-face:after{opacity:.5!important}
+@media(prefers-reduced-motion:reduce){.page-sheet.is-turning-next.is-releasing,.page-sheet.is-turning-previous.is-releasing{transition-duration:.01ms!important}}
