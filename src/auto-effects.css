@@ -3,12 +3,12 @@
 .page-sheet.is-turning-previous.is-dragging {
   animation: none !important;
   transition: none !important;
-  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(calc(sin(var(--turn-progress) * 3.14159) * 18px)) !important;
+  transform: rotateY(calc(var(--turn-progress) * -180deg)) translateZ(calc(var(--turn-progress) * 18px)) !important;
   filter: drop-shadow(calc(var(--turn-progress) * 16px - 4px) 8px 18px rgba(37,20,20,calc(.16 + var(--turn-progress) * .22))) !important;
 }
 
 .page-sheet.is-turning-previous.is-dragging {
-  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(calc(sin(var(--turn-progress) * 3.14159) * 18px)) !important;
+  transform: rotateY(calc((1 - var(--turn-progress)) * -180deg)) translateZ(calc(var(--turn-progress) * 18px)) !important;
 }
 
 .page-sheet.is-turning-next.is-releasing,
