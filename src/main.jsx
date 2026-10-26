@@ -16,6 +16,7 @@ const RELEASE_MS = 420;
 const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
 const PETAL_COUNT = 10;
+const GOLD_DUST_COUNT = 7;
 
 function RosePetal({ index }) {
   return (
@@ -39,6 +40,10 @@ function RosePetal({ index }) {
       </svg>
     </span>
   );
+}
+
+function GoldDust({ index }) {
+  return <span className={`gold-dust gold-dust-${index + 1}`} aria-hidden="true" />;
 }
 
 function App() {
@@ -220,7 +225,10 @@ function App() {
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       <div className="transition-effects" aria-hidden="true">
-        {transitionFx === 'petals' && Array.from({ length: PETAL_COUNT }, (_, index) => <RosePetal key={index} index={index} />)}
+        {transitionFx === 'petals' && <>
+          {Array.from({ length: PETAL_COUNT }, (_, index) => <RosePetal key={`petal-${index}`} index={index} />)}
+          {Array.from({ length: GOLD_DUST_COUNT }, (_, index) => <GoldDust key={`dust-${index}`} index={index} />)}
+        </>}
         {transitionFx === 'sparkles' && Array.from({ length: 7 }, (_, index) => <span key={index} className={`sparkle sparkle-${index + 1}`} />)}
       </div>
       <audio ref={audioRef} loop preload="none" aria-hidden="true"><source src="/music/wedding-music.mp3" type="audio/mpeg" /></audio>
