@@ -15,16 +15,15 @@ function App() {
   const [page, setPage] = useState(0);
   const [opened, setOpened] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
-  const [direction, setDirection] = useState('next');
   const [touchStart, setTouchStart] = useState(null);
 
-  const goTo = (nextPage, nextDirection) => {
+  const goTo = (nextPage) => {
     if (nextPage < 0 || nextPage > pages.length - 1 || nextPage === page) return;
-    setDirection(nextDirection);
     setPage(nextPage);
   };
-  const next = () => goTo(page + 1, 'next');
-  const previous = () => goTo(page - 1, 'previous');
+
+  const next = () => goTo(page + 1);
+  const previous = () => goTo(page - 1);
 
   const openInvitation = () => {
     setOpened(true);
@@ -58,36 +57,59 @@ function App() {
     );
   }
 
-  const overlayPage = direction === 'next' ? page - 1 : page + 1;
-
   return (
     <main className="app-shell">
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
+
       <header className="topbar">
         <div className="brand-mark">A <span>×</span> R</div>
         <div className="topbar-right">
-          <button className="icon-button" onClick={() => setMusicOn((v) => !v)} aria-label={musicOn ? 'Mute music' : 'Play music'}>{musicOn ? '♫' : '♪'}</button>
+          <button className="icon-button" onClick={() => setMusicOn((v) => !v)} aria-label={musicOn ? 'Mute music' : 'Play music'}>
+            {musicOn ? '♫' : '♪'}
+          </button>
           <span>{page + 1} / {pages.length}</span>
         </div>
       </header>
 
-      <section className="book-stage" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} aria-label="Wedding invitation book">
+      <section
+        className="book-stage"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        aria-label="Wedding invitation book"
+      >
         <div className="book-shadow" />
         <div className="book">
-          <div className="paper-back" />
-          <div className="paper current-page"><PageContent page={pages[page].id} /></div>
-          {overlayPage >= 0 && overlayPage < pages.length && (
-            <div className={`paper turn-page turn-${direction}`} key={`${page}-${direction}`}>
-              <PageContent page={pages[overlayPage].id} />
-            </div>
-          )}
+          <div className="book-spine" />
+          <div className="paper-stack" />
+
+          {pages.map((item, index) => (
+            <article
+              key={item.id}
+              className={`page-sheet ${index < page ? 'is-turned' : ''} ${index === page ? 'is-current' : ''}`}
+              style={{ zIndex: pages.length - index }}
+              aria-hidden={index !== page}
+            >
+              <div className="page-face page-front">
+                <PageContent page={item.id} />
+              </div>
+              <div className="page-face page-back">
+                <div className="page-back-inner">
+                  <span>A &amp; R</span>
+                  <small>{index + 1}</small>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
       <nav className="book-controls" aria-label="Invitation navigation">
         <button className="nav-button" onClick={previous} disabled={page === 0} aria-label="Previous page">←</button>
-        <div className="progress-wrap"><div className="progress-track"><span style={{ width: progress }} /></div><div className="page-label">{pages[page].label}</div></div>
+        <div className="progress-wrap">
+          <div className="progress-track"><span style={{ width: progress }} /></div>
+          <div className="page-label">{pages[page].label}</div>
+        </div>
         <button className="nav-button" onClick={next} disabled={page === pages.length - 1} aria-label="Next page">→</button>
       </nav>
       <div className="keyboard-hint">Swipe or use the arrows to turn the pages</div>
