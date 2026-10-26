@@ -35,3 +35,6 @@
 .app-shell>.transition-effects{position:fixed!important;inset:0!important;z-index:140!important;pointer-events:none!important}
 .content-page:not(.cover-page) h2{margin-left:12px}
 .whatsapp-button{background:linear-gradient(135deg,#d4af37 0%,#aa771c 100%)!important;color:#1a0812!important;font-weight:600!important;box-shadow:0 4px 15px rgba(212,175,55,.3)!important;border:1px solid rgba(255,226,137,.55)!important}
+
+/* Keep the page-turn effect to the requested six visible champagne micro-sparkles. */
+.gold-dust-7{display:none!important}
