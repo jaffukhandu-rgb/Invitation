@@ -15,7 +15,7 @@ const pages = [
 const RELEASE_MS = 420;
 const DRAG_THRESHOLD = 0.28;
 const AUTO_TURN_MS = 5000;
-const PETAL_COUNT = 12;
+const PETAL_COUNT = 10;
 
 function RosePetal({ index }) {
   return (
