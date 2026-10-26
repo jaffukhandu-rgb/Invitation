@@ -1,1 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 140" fill="none"><defs><linearGradient id="lehenga" x1="16" y1="68" x2="67" y2="137" gradientUnits="userSpaceOnUse"><stop stop-color="#e88a9c"/><stop offset=".5" stop-color="#b52f4d"/><stop offset="1" stop-color="#641126"/></linearGradient><linearGradient id="dupatta" x1="25" y1="26" x2="67" y2="80" gradientUnits="userSpaceOnUse"><stop stop-color="#f6c7ce"/><stop offset="1" stop-color="#c85a70"/></linearGradient></defs><ellipse cx="40" cy="136" rx="29" ry="3" fill="#170810" opacity=".35"/><path d="M29 62c-6 12-10 29-13 51l-7 20h62l-8-20c-3-22-7-39-14-51z" fill="url(#lehenga)" stroke="#e7c78b" stroke-width="1"/><path d="M18 85h44M14 105h52M10 124h60" stroke="#f0c873" stroke-width="1" opacity=".7"/><path d="M25 64c8 7 18 9 28 0l9 57H18z" fill="#a92745" opacity=".42"/><path d="M29 56h20v17H29z" fill="#d99a79"/><path d="M30 42c0-11 6-19 15-19 9 0 15 8 15 19s-7 18-15 18-15-8-15-18z" fill="#d99a79"/><path d="M29 43c-1-15 5-24 17-24 11 0 18 8 18 20l-5 12-5-17-7-7-9 10-9 4z" fill="#211218"/><path d="M29 38c-3 5-7 17-4 29 5-3 9-8 11-14l-2-15z" fill="#211218"/><path d="M58 39c4 6 6 15 3 27-4-3-7-8-8-14l2-13z" fill="#211218"/><circle cx="49" cy="40" r="1.2" fill="#241318"/><path d="M48 47c4 2 7 2 10 0" stroke="#a86c59" stroke-width="1" stroke-linecap="round"/><path d="M25 55c-2 12-7 21-12 28" stroke="#d99a79" stroke-width="4" stroke-linecap="round"/><path d="M51 55c4 8 8 16 14 22" stroke="#d99a79" stroke-width="4" stroke-linecap="round"/><path d="M25 31c8 8 20 11 35 6 4 8 7 19 7 31-10-8-15-17-17-28-8 7-17 10-29 8 0-6 1-12 4-17z" fill="url(#dupatta)" opacity=".9"/><path d="M60 68l6 18" stroke="#e8c477" stroke-width="2"/><circle cx="17" cy="84" r="2" fill="#e8c477"/><circle cx="65" cy="86" r="2" fill="#e8c477"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 160" fill="none">
+<defs>
+  <linearGradient id="lehenga" x1="20" y1="75" x2="76" y2="150" gradientUnits="userSpaceOnUse"><stop stop-color="#c64a64"/><stop offset=".55" stop-color="#9d263f"/><stop offset="1" stop-color="#541122"/></linearGradient>
+  <linearGradient id="dupatta" x1="28" y1="28" x2="76" y2="94" gradientUnits="userSpaceOnUse"><stop stop-color="#f2c4c9"/><stop offset="1" stop-color="#b8445b"/></linearGradient>
+</defs>
+<ellipse cx="49" cy="153" rx="29" ry="4" fill="#090507" opacity=".5"/>
+<!-- lehenga -->
+<path d="M36 67c-7 12-12 31-15 48l-10 34h72l-11-34c-3-18-7-36-13-48z" fill="url(#lehenga)" stroke="#e9c675" stroke-width="1.4"/>
+<path d="M16 119h67M13 137h72" stroke="#e7c477" stroke-width="1.4" opacity=".9"/>
+<path d="M23 105h58M20 126h64" stroke="#d98b54" stroke-width="1" opacity=".7"/>
+<!-- blouse -->
+<path d="M37 56h24v24H37z" fill="#e0a078"/>
+<path d="M35 60c6 7 20 9 28 0l8 27H29z" fill="#8e1f39" stroke="#e7c477" stroke-width="1"/>
+<path d="M42 65h12" stroke="#f2d18a" stroke-width="1.5"/>
+<!-- inward arms -->
+<path d="M36 61c-4 9-5 20-1 30l13 18" stroke="#d99a79" stroke-width="6" stroke-linecap="round"/>
+<path d="M60 61c3 8 5 18 2 27l-12 20" stroke="#d99a79" stroke-width="6" stroke-linecap="round"/>
+<circle cx="48" cy="109" r="3" fill="#d99a79" stroke="#e8c77f" stroke-width="1"/>
+<!-- neck + face -->
+<path d="M40 52h17v12H40z" fill="#d99a79"/>
+<path d="M34 38c0-12 7-22 17-22s18 10 18 22-8 22-18 22S34 51 34 38z" fill="#d99a79"/>
+<!-- hair -->
+<path d="M32 39c-1-16 6-26 20-26 13 0 20 9 20 23l-5 15-7-18-8-9-9 12-10 5z" fill="#211319"/>
+<path d="M34 31c5-10 14-14 26-12" stroke="#3b2027" stroke-width="3" stroke-linecap="round"/>
+<!-- face -->
+<circle cx="55" cy="39" r="1.4" fill="#241218"/>
+<path d="M55 47c3 2 6 2 8 0" stroke="#a15f50" stroke-width="1.2" stroke-linecap="round"/>
+<!-- dupatta -->
+<path d="M28 31c8 9 20 13 35 7 5 12 9 28 10 46-10-8-16-18-19-31-8 8-17 11-29 9-1-12 0-22 3-31z" fill="url(#dupatta)" opacity=".94"/>
+<path d="M67 57c7 11 10 22 10 35" stroke="#e8c477" stroke-width="1.5"/>
+<!-- jewellery -->
+<circle cx="49" cy="54" r="3" fill="#e6bf6c"/>
+<circle cx="30" cy="55" r="2.5" fill="#e8c477"/><circle cx="68" cy="55" r="2.5" fill="#e8c477"/>
+<path d="M39 21c5-7 16-10 25-5" stroke="#e8c477" stroke-width="2"/>
+</svg>
