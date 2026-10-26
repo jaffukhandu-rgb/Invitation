@@ -30,3 +30,8 @@
 /* Champagne shimmer alias for future effects; current page-turn dust remains DOM-driven for reliable rendering. */
 .gold-shimmer{position:fixed;width:3px;height:3px;border-radius:50%;pointer-events:none;z-index:999;background:radial-gradient(circle,#fffbe6 20%,#d4af37 80%);box-shadow:0 0 7px 2px rgba(212,175,55,.85);animation:floatShimmer 1.25s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes floatShimmer{0%{transform:translate3d(0,0,0) scale(.4);opacity:0}25%{opacity:1;transform:translate3d(var(--drift-x,8px),-18px,0) scale(1.1)}100%{transform:translate3d(calc(var(--drift-x,8px)*1.8),35px,0) scale(.2);opacity:0}}
+
+/* Final launch fixes. */
+.app-shell>.transition-effects{position:fixed!important;inset:0!important;z-index:140!important;pointer-events:none!important}
+.content-page:not(.cover-page) h2{margin-left:12px}
+.whatsapp-button{background:linear-gradient(135deg,#d4af37 0%,#aa771c 100%)!important;color:#1a0812!important;font-weight:600!important;box-shadow:0 4px 15px rgba(212,175,55,.3)!important;border:1px solid rgba(255,226,137,.55)!important}
